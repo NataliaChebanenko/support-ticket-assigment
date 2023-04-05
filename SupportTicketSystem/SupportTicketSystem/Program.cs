@@ -27,6 +27,25 @@ namespace SupportTicketSystem
             var dbContext = scope.ServiceProvider.GetRequiredService<SupportTicketDbContext>();
 
             // Ask if user is customer or support
+            var showMenu = true;
+            while (showMenu)
+            {
+                Console.WriteLine("Är du en kund (1) eller teknisk support (2)?");
+            var typeOfCustomer = Console.ReadLine();
+
+            if (typeOfCustomer == "2")
+            {
+
+
+                Console.WriteLine("Välkommen teknisk support!");
+                Console.WriteLine("----------------------------");
+
+                Console.WriteLine("2. Se alla ärenden");
+                Console.WriteLine("3. Se specifikt ärende:");
+                Console.WriteLine("4. Byt status");
+                Console.WriteLine("5. Avsluta");
+
+                    var choice = Console.ReadLine();
 
                 switch (choice)
                 {
