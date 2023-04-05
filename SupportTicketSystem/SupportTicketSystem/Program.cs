@@ -4,39 +4,37 @@ using Microsoft.Extensions.DependencyInjection;
 using SupportTicketSystem.Data;
 using SupportTicketSystem.Data.Models;
 
-namespace SupportTicketSystem
+namespace SupportTicketSystem;
+
+public class Program
 {
-    public class Program
+    private static void Main(string[] args)
     {
-        static void Main(string[] args)
+        // Build configuration
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", true, true)
+            .AddEnvironmentVariables()
+            .AddCommandLine(args)
+            .Build();
+
+        // Build service provider
+        var services = new ServiceCollection()
+            .AddDbContext<SupportTicketDbContext>()
+            .BuildServiceProvider();
+
+        // Resolve DbContext
+        using var scope = services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SupportTicketDbContext>();
+
+        // Ask if user is customer or support
+        var showMenu = true;
+        while (showMenu)
         {
-            // Build configuration
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .AddCommandLine(args)
-                .Build();
-
-            // Build service provider
-            var services = new ServiceCollection()
-                .AddDbContext<SupportTicketDbContext>()
-                .BuildServiceProvider();
-
-            // Resolve DbContext
-            using var scope = services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<SupportTicketDbContext>();
-
-            // Ask if user is customer or support
-            var showMenu = true;
-            while (showMenu)
-            {
-                Console.WriteLine("Är du en kund (1) eller teknisk support (2)?");
+            Console.WriteLine("Är du en kund (1) eller teknisk support (2)?");
             var typeOfCustomer = Console.ReadLine();
 
             if (typeOfCustomer == "2")
             {
-
-
                 Console.WriteLine("Välkommen teknisk support!");
                 Console.WriteLine("----------------------------");
 
@@ -45,7 +43,7 @@ namespace SupportTicketSystem
                 Console.WriteLine("4. Byt status");
                 Console.WriteLine("5. Avsluta");
 
-                    var choice = Console.ReadLine();
+                var choice = Console.ReadLine();
 
                 switch (choice)
                 {
@@ -64,11 +62,12 @@ namespace SupportTicketSystem
                             Console.WriteLine(
                                 "-----------------------------------------------------------------------------------------------------------");
                         }
+
                         Console.WriteLine("Klicka valfri tangent för att forsätta");
                         Console.ReadLine();
 
 
-                            break;
+                        break;
 
                     case "3":
                         Console.WriteLine("Vänligen ange Ärende id (ticket id):");
@@ -82,17 +81,16 @@ namespace SupportTicketSystem
                             Console.WriteLine("Hittade inte ärendet. Försök igen");
                             Console.WriteLine("Klicka valfri tangent för att forsätta");
                             Console.ReadLine();
+                        }
 
-                            }
-
-                            Console.WriteLine(
+                        Console.WriteLine(
                             $" Ticket id: {singleTicket.TicketId}, Description: {singleTicket.TicketDescription}, Ticket created: {singleTicket.TicketRegistered}");
                         Console.WriteLine(
                             "-----------------------------------------------------------------------------------------------------------");
                         Console.WriteLine("Klicka valfri tangent för att forsätta");
                         Console.ReadLine();
 
-                            break;
+                        break;
 
                     case "4":
                         Console.WriteLine("Ange id för ärendet du vill byta status på:");
@@ -110,17 +108,15 @@ namespace SupportTicketSystem
                                 Console.WriteLine("Ärende uppdaterat");
                                 Console.WriteLine("Klicka valfri tangent för att forsätta");
                                 Console.ReadLine();
-
-                                }
+                            }
                             else
                             {
                                 Console.WriteLine("Kunde inte hitta ärendet. Försök igen.");
                                 Console.WriteLine("Klicka valfri tangent för att forsätta");
                                 Console.ReadLine();
-
-                                }
-
                             }
+                        }
+
                         break;
 
                     case "5":
@@ -135,7 +131,7 @@ namespace SupportTicketSystem
 
                 Console.WriteLine("1. Skapa ärende");
                 Console.WriteLine("2. Avsluta");
-                    var choice = Console.ReadLine();
+                var choice = Console.ReadLine();
 
                 switch (choice)
                 {
@@ -159,18 +155,18 @@ namespace SupportTicketSystem
                             CustomerPhoneNr = phone,
                             Tickets = new List<Ticket>
                             {
-                                new Ticket
+                                new()
                                 {
                                     SupportComment = string.Empty,
                                     SupportCommentRegistered = DateTime.Now,
                                     TicketDescription = problem,
-                                    TicketRegistered = DateTime.Now,
+                                    TicketRegistered = DateTime.Now
                                 }
                             }
                         };
 
                         dbContext.Add(customer);
-                        if (dbContext.SaveChanges() == 0)
+                        if (dbContext.SaveChanges() > 0)
                         {
                             Console.WriteLine("Ärende skapat! Klicka enter för att fortsätta");
                             Console.ReadLine();
@@ -179,8 +175,6 @@ namespace SupportTicketSystem
                         {
                             Console.WriteLine("Ärende misslyckades. Klicka enter för att fortsätta");
                             Console.ReadLine();
-
-
                         }
 
                         break;
@@ -189,39 +183,10 @@ namespace SupportTicketSystem
                         showMenu = false;
                         break;
 
-                        default:
+                    default:
                         throw new Exception();
                 }
             }
-            }
-
-
-
-
-
-
-            Console.WriteLine("Hello, World!");
-        //    var customer = new Customer
-        //    {
-        //        CustomerName = "Natalia",
-        //        CustomerLastName = "Chebanenko",
-        //        CustomerEmail = "natalia@gmail.com",
-        //        CustomerPhoneNr = "0793336962",
-        //        Tickets = new List<Ticket>
-        //        {
-        //            new Ticket
-        //            {
-        //                SupportComment = "ej",
-        //                SupportCommentRegistered = DateTime.Now,
-        //                TicketDescription = "Ticket discription",
-        //                TicketRegistered = DateTime.Now,
-        //            }
-        //        }
-        //};
-
-            //dbContext.Add(customer);
-            //dbContext.SaveChanges();
-            //Console.ReadLine();
         }
     }
 }
